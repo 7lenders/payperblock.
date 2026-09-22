@@ -196,7 +196,7 @@ p{text-wrap:pretty}
 .ul:hover{background-size:100% 1px}
 
 /*─── progress + cursor + chrome ──────────────────────────────────────*/
-.progress{position:fixed;top:0;left:0;height:2px;width:100%;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,var(--accent),var(--accent-2));z-index:60;will-change:transform}
+.progress{position:fixed;top:0;left:0;height:2px;width:100%;pointer-events:none;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,var(--accent),var(--accent-2));z-index:60;will-change:transform}
 .cursor,.cursor-dot{position:fixed;top:0;left:0;z-index:90;pointer-events:none;border-radius:50%;mix-blend-mode:difference;opacity:0}
 .cursor{width:34px;height:34px;border:1px solid rgba(255,255,255,.65);margin:-17px 0 0 -17px;transition:width .3s var(--out),height .3s var(--out),margin .3s var(--out),opacity .3s,background-color .3s}
 .cursor-dot{width:4px;height:4px;margin:-2px 0 0 -2px;background:#fff}
@@ -210,7 +210,9 @@ body.cursor-lg .cursor{width:64px;height:64px;margin:-32px 0 0 -32px;background:
 
 /*─── navigation ──────────────────────────────────────────────────────*/
 .nav{position:fixed;inset-inline:0;top:0;z-index:70;transition:background-color .4s var(--out),border-color .4s,backdrop-filter .4s}
-.nav::after{content:'';position:absolute;inset:0;border-bottom:1px solid transparent;transition:border-color .4s}
+/* Covers the whole bar to animate the bottom rule — must never take a
+   click, or the entire header (theme toggle, search, nav, CTA) goes dead. */
+.nav::after{content:'';position:absolute;inset:0;border-bottom:1px solid transparent;transition:border-color .4s;pointer-events:none}
 .nav.stuck{background:color-mix(in oklab,var(--bg) 78%,transparent);backdrop-filter:blur(20px) saturate(1.6);-webkit-backdrop-filter:blur(20px) saturate(1.6)}
 .nav.stuck::after{border-bottom-color:var(--line)}
 .nav-in{position:relative;display:flex;align-items:center;justify-content:space-between;height:var(--nav-h);gap:1rem}
@@ -280,6 +282,11 @@ body.cursor-lg .cursor{width:64px;height:64px;margin:-32px 0 0 -32px;background:
 @media(min-width:1100px){.hero-grid{grid-template-columns:1.08fr .92fr}}
 .hero-canvas-wrap{position:relative;aspect-ratio:1/.92;width:100%;max-width:34rem;margin-inline:auto}
 .hero-canvas-wrap canvas{width:100%;height:100%}
+.hero-canvas-wrap canvas.hot{cursor:pointer}
+/* Keyboard/AT route to the same destinations the canvas nodes navigate to */
+.canvas-links{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-top:.5rem}
+.canvas-links a{font-family:var(--mono);font-size:.6875rem;color:var(--fg-3);border:1px solid var(--line);border-radius:999px;padding:.25rem .6rem;transition:color .25s,border-color .25s}
+.canvas-links a:hover{color:var(--accent-2);border-color:var(--accent)}
 .hero-legend{position:absolute;inset:auto 0 0 0;display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center}
 
 /* Headline reveal: each line masked by its own overflow box, so the words
@@ -426,7 +433,9 @@ body.cursor-lg .cursor{width:64px;height:64px;margin:-32px 0 0 -32px;background:
 .tech-grid{display:grid;gap:1px;background:var(--line);border-block:1px solid var(--line);margin-top:2rem}
 @media(min-width:700px){.tech-grid{grid-template-columns:repeat(2,1fr)}}
 @media(min-width:1100px){.tech-grid{grid-template-columns:repeat(3,1fr)}}
-.tech-cell{background:var(--bg);padding:1.5rem;transition:opacity .4s,background-color .4s}
+.tech-cell{background:var(--bg);transition:opacity .4s,background-color .4s}
+.tech-cell>a,.tech-cell>div{display:block;padding:1.5rem}
+.tech-cell>a:hover{background:var(--surface)}
 .tech-cell.mute{opacity:.28}
 .tech-cell h3{font-size:.9375rem}
 .tech-cell .note{margin-top:.5rem;font-size:.8125rem;color:var(--fg-2);line-height:1.6;min-height:3.2rem}
@@ -1043,17 +1052,17 @@ const D = {
 
   /* Editorial byline, not a fabricated individual. date null until published. */
   articles:[
-    {category:'AI',title:'What breaks when retrieval meets enterprise permissions',date:null,author:'Payperblock Engineering',
+    {slug:'retrieval-and-enterprise-permissions',industry:'ai-intelligent-systems',category:'AI',title:'What breaks when retrieval meets enterprise permissions',date:null,author:'Payperblock Engineering',
      excerpt:'Most internal AI pilots stall at the same place: the index knows things the user is not allowed to see. Approaches to entitlement-aware retrieval, and the trade-offs each one carries.'},
-    {category:'E-Mobility',title:'OCPP in practice: running a multi-vendor charging estate',date:null,author:'Payperblock Engineering',
+    {slug:'ocpp-multi-vendor-charging-estate',industry:'e-mobility',category:'E-Mobility',title:'OCPP in practice: running a multi-vendor charging estate',date:null,author:'Payperblock Engineering',
      excerpt:'The protocol is a standard; the implementations are not. Field notes on vendor divergence, session reconciliation and the failure modes that cost operators revenue.'},
-    {category:'SaaS',title:'From single-tenant to multi-tenant without stopping the business',date:null,author:'Payperblock Engineering',
+    {slug:'single-tenant-to-multi-tenant',industry:'saas-enterprise-software',category:'SaaS',title:'From single-tenant to multi-tenant without stopping the business',date:null,author:'Payperblock Engineering',
      excerpt:'Isolation boundaries, migration sequencing and the decisions that are expensive to reverse when a product built for one customer has to serve hundreds.'},
-    {category:'Software Engineering',title:'Designing ledgers that survive retries',date:null,author:'Payperblock Engineering',
+    {slug:'ledgers-that-survive-retries',industry:'fintech',category:'Software Engineering',title:'Designing ledgers that survive retries',date:null,author:'Payperblock Engineering',
      excerpt:'Idempotency keys, double-entry structure and reconciliation as a first-class feature rather than a monthly spreadsheet exercise.'},
-    {category:'Robotics',title:'Telemetry at fleet scale: what to store and what to throw away',date:null,author:'Payperblock Engineering',
+    {slug:'telemetry-at-fleet-scale',industry:'robotics-automation',category:'Robotics',title:'Telemetry at fleet scale: what to store and what to throw away',date:null,author:'Payperblock Engineering',
      excerpt:'Robot fleets generate more data than anyone budgets for. Downsampling strategy, retention windows and keeping remote diagnosis possible over a bad connection.'},
-    {category:'Blockchain',title:'When a blockchain is the wrong answer',date:null,author:'Payperblock Engineering',
+    {slug:'when-a-blockchain-is-the-wrong-answer',industry:'blockchain-web3',category:'Blockchain',title:'When a blockchain is the wrong answer',date:null,author:'Payperblock Engineering',
      excerpt:'A short test for whether distributed settlement earns its complexity, and what to build instead when it does not.'}
   ],
 
@@ -1343,7 +1352,7 @@ function resolve(path){
   if(a==='services')   return VIEWS.services();
   if(a==='technology') return VIEWS.technology();
   if(a==='about')      return VIEWS.about();
-  if(a==='insights')   return VIEWS.insights();
+  if(a==='insights')   return b ? VIEWS.article(b) : VIEWS.insights();
   if(a==='contact')    return VIEWS.contact();
   if(a==='legal')      return VIEWS.legal(b);
   return VIEWS.notFound();
@@ -1453,6 +1462,7 @@ function buildCommandIndex(){
   items.push({group:'Pages',label:'Home',sub:'Page',path:'/',ic:'→'});
   D.industries.forEach(i=>items.push({group:'Industries',label:i.name,sub:i.summary,path:'/industries/'+i.slug,ic:'◆'}));
   D.cases.forEach(c=>items.push({group:'Case studies',label:c.title,sub:c.industryLabel+' · '+c.region,path:'/work/'+c.slug,ic:'▦'}));
+  D.articles.forEach(a=>items.push({group:'Insights',label:a.title,sub:a.category,path:'/insights/'+a.slug,ic:'¶'}));
   D.tech.forEach(t=>t.items.forEach(x=>items.push({group:'Technology',label:x,sub:t.title,path:'/technology',ic:'⌘'})));
   items.push({group:'Actions',label:'Switch theme',sub:'Light / dark',action:'theme',ic:'☾'});
   items.push({group:'Actions',label:'Email Payperblock',sub:D.site.email,action:'email',ic:'@'});
@@ -1568,9 +1578,16 @@ function setupCanvas(canvas, draw){
   field around them, and packets moving along the edges. The pointer
   bends the field locally. Everything is drawn in one pass per frame. */
 function mountHero(canvas){
+  // Each node is a link. The same destinations are repeated as real
+  // anchors under the canvas, so keyboard and screen-reader users are
+  // never asked to click a <canvas>.
   const NODES = [
-    {l:'AI',x:.52,y:.12},{l:'SaaS',x:.87,y:.34},{l:'Mobility',x:.80,y:.74},
-    {l:'Robotics',x:.45,y:.90},{l:'Blockchain',x:.11,y:.65},{l:'Enterprise',x:.17,y:.26}
+    {l:'AI',x:.52,y:.12,to:'/industries/ai-intelligent-systems'},
+    {l:'SaaS',x:.87,y:.34,to:'/industries/saas-enterprise-software'},
+    {l:'Mobility',x:.80,y:.74,to:'/industries/e-mobility'},
+    {l:'Robotics',x:.45,y:.90,to:'/industries/robotics-automation'},
+    {l:'Blockchain',x:.11,y:.65,to:'/industries/blockchain-web3'},
+    {l:'Enterprise',x:.17,y:.26,to:'/services'}
   ];
   const EDGES = [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[0,3],[1,4],[2,5]];
   const P_COUNT = window.innerWidth < 700 ? 34 : 62;
@@ -1599,9 +1616,22 @@ function mountHero(canvas){
     const r = canvas.getBoundingClientRect();
     pointer.x = e.clientX - r.left; pointer.y = e.clientY - r.top; pointer.active = true;
   }
-  function onLeave(){ pointer.active = false; pointer.x = pointer.y = -9999; }
+  function onLeave(){ pointer.active = false; pointer.x = pointer.y = -9999; canvas.classList.remove('hot'); }
+
+  // Hit test in canvas space, with a generous radius so the target is
+  // comfortable to hit — the drawn node is 16px, the hit area is 30px.
+  function nodeAt(x,y){
+    for(const n of nodes){ if(Math.hypot(n.px-x, n.py-y) < 30) return n; }
+    return null;
+  }
+  function onClick(e){
+    const r = canvas.getBoundingClientRect();
+    const n = nodeAt(e.clientX-r.left, e.clientY-r.top);
+    if(n && n.to) navigate(n.to);
+  }
   canvas.addEventListener('pointermove', onMove, {passive:true});
   canvas.addEventListener('pointerleave', onLeave, {passive:true});
+  canvas.addEventListener('click', onClick);
 
   const still = reduceMotion();
 
@@ -1678,6 +1708,7 @@ function mountHero(canvas){
     // Domain nodes
     ctx.font = '500 12px Inter, system-ui, sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if(pointer.active) canvas.classList.toggle('hot', !!nodeAt(pointer.x, pointer.y));
     for(const n of nodes){
       let hov = 0;
       if(pointer.active){
@@ -1711,6 +1742,7 @@ function mountHero(canvas){
     stop(); stage.destroy();
     canvas.removeEventListener('pointermove', onMove);
     canvas.removeEventListener('pointerleave', onLeave);
+    canvas.removeEventListener('click', onClick);
   };
 }
 
@@ -2359,9 +2391,9 @@ const industryTiles = () => `<ul class="grid c4 rv-s" style="margin-top:3rem">${
     </a>
   </li>`).join('')}</ul>`;
 
-const serviceBlock = () => `<div class="grid c3 rv-s" style="margin-top:3rem">${D.serviceGroups.map(g=>`
-  <section class="cell" style="padding:1.9rem">
-    <h3 class="t-3">${esc(g.title)}</h3>
+const serviceBlock = (linked=true) => `<div class="grid c3 rv-s" style="margin-top:3rem">${D.serviceGroups.map(g=>`
+  <section class="cell spot" style="padding:1.9rem">
+    <h3 class="t-3">${linked?`<a href="#/services" class="ul">${esc(g.title)}</a>`:esc(g.title)}</h3>
     <p class="muted" style="margin-top:.75rem;max-width:34ch;font-size:.9375rem;line-height:1.6">${esc(g.intent)}</p>
     <ul style="margin-top:2rem">
       ${g.services.map(([n,d])=>`<li style="border-top:1px solid var(--line);padding-top:1.15rem;margin-top:1.35rem">
@@ -2371,16 +2403,18 @@ const serviceBlock = () => `<div class="grid c3 rv-s" style="margin-top:3rem">${
     </ul>
   </section>`).join('')}</div>`;
 
-const techExplorer = () => `
+const techExplorer = (linked=true) => `
   <div class="tech-head rv">
     <button class="pill on" data-tech="all">All layers</button>
     ${D.tech.map(t=>`<button class="pill" data-tech="${t.id}">${esc(t.title)}</button>`).join('')}
   </div>
   <div class="tech-grid rv-s">
     ${D.tech.map(t=>`<div class="tech-cell" data-tcell="${t.id}">
-      <h3 class="t-4">${esc(t.title)}</h3>
-      <p class="note">${esc(t.note)}</p>
-      <ul>${t.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>
+      ${linked?`<a href="#/technology" aria-label="${esc(t.title)} — technology in detail">`:'<div>'}
+        <h3 class="t-4">${esc(t.title)}</h3>
+        <p class="note">${esc(t.note)}</p>
+        <ul>${t.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>
+      ${linked?'</a>':'</div>'}
     </div>`).join('')}
   </div>`;
 
@@ -2534,8 +2568,16 @@ VIEWS.home = () => ({
       </div>
       <div class="fade-up d2">
         <div class="hero-canvas-wrap">
-          <canvas id="herocanvas" role="img" aria-label="Interactive diagram of the domains Payperblock builds in: AI, SaaS, mobility, robotics, blockchain and enterprise systems, connected as one system."></canvas>
+          <canvas id="herocanvas" role="img" aria-label="Interactive diagram of the domains Payperblock builds in. Each node links to that area of our work; the same links follow below."></canvas>
         </div>
+        <nav class="canvas-links" aria-label="Domains we build in">
+          <a href="#/industries/ai-intelligent-systems">AI</a>
+          <a href="#/industries/saas-enterprise-software">SaaS</a>
+          <a href="#/industries/e-mobility">Mobility</a>
+          <a href="#/industries/robotics-automation">Robotics</a>
+          <a href="#/industries/blockchain-web3">Blockchain</a>
+          <a href="#/services">Enterprise</a>
+        </nav>
       </div>
     </div>
 
@@ -2780,7 +2822,7 @@ VIEWS.services = () => ({
   desc:'Custom software, web and mobile applications, SaaS platforms, AI, blockchain, cloud and DevOps, systems integration, enterprise software and e-mobility engineering.',
   html: pageHead({label:'What we build',title:'Complete products, not billable hours.',
     lede:'We are engaged to deliver working systems — architecture, build, release and the operational layer underneath. Services are grouped by what you are trying to achieve rather than by discipline.'}) +
-  `<div class="shell">${serviceBlock()}</div>${processPinned()}${ctaBlock()}`
+  `<div class="shell">${serviceBlock(false)}</div>${processPinned()}${ctaBlock()}`
 });
 
 VIEWS.technology = () => ({
@@ -2789,7 +2831,7 @@ VIEWS.technology = () => ({
   html: pageHead({label:'Technology',title:'Chosen for the problem, not the r&eacute;sum&eacute;.',
     lede:'We are not tied to a single stack. This is what we run in production today, grouped by the layer it belongs to.'}) +
   `<div class="shell">
-    ${techExplorer()}
+    ${techExplorer(false)}
     <div class="notice rv" style="margin-top:3rem">
       <h3>On partnerships and badges</h3>
       <p>This page lists tools we use, not vendor partnerships or certifications. Where we hold a formal accreditation we will name it and show the certificate; until then, you will not find partner badges here.</p>
@@ -2838,7 +2880,7 @@ VIEWS.insights = () => ({
     ${D.articles.length===0
       ? `<div class="notice"><p>The first pieces are being written. Check back shortly, or ask us directly about any of the areas we work in.</p></div>`
       : `<ul class="grid c3 rv-s">${D.articles.map(a=>`
-          <li class="cell spot"><article class="article">
+          <li class="cell spot"><a class="article" href="#/insights/${a.slug}">
             <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
               <span class="tag">${esc(a.category)}</span>
               <span class="dim" style="font-size:.75rem">${a.date?esc(a.date):'In preparation'}</span>
@@ -2846,10 +2888,60 @@ VIEWS.insights = () => ({
             <h2>${esc(a.title)}</h2>
             <p class="ex">${esc(a.excerpt)}</p>
             <p class="by">${esc(a.author)}</p>
-          </article></li>`).join('')}</ul>`}
+          </a></li>`).join('')}</ul>`}
   </div>
   <div style="margin-top:6rem">${ctaBlock()}</div>`
 });
+
+VIEWS.article = slug => {
+  const a = D.articles.find(x=>x.slug===slug);
+  if(!a) return VIEWS.notFound();
+  const ind = getIndustry(a.industry);
+  const more = D.articles.filter(x=>x.slug!==slug).slice(0,3);
+  return {
+    title:`${a.title} — Payperblock`,
+    desc:a.excerpt,
+    html: crumbs([{name:'Home',path:'/'},{name:'Insights',path:'/insights'},{name:a.title,path:'/insights/'+a.slug}]) +
+    `<header class="shell" style="padding-top:2rem;padding-bottom:2.5rem">
+      <div class="rv" style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+        <span class="tag j">${esc(a.category)}</span>
+        <span class="dim" style="font-size:.8125rem">${a.date?esc(a.date):'In preparation'}</span>
+        <span class="dim" style="font-size:.8125rem">· ${esc(a.author)}</span>
+      </div>
+      <h1 class="t-1 rv" style="margin-top:1.4rem;max-width:22ch">${esc(a.title)}</h1>
+      <p class="lede rv" style="margin-top:1.6rem;max-width:42rem">${esc(a.excerpt)}</p>
+    </header>
+
+    <div class="shell">
+      <div class="notice rv">
+        <h3>This piece is still being written</h3>
+        <p>We publish engineering notes only once the engineers who did the work have written and
+        reviewed them, so there is no draft here to read yet. If this is a problem you are facing now,
+        it is faster to <a href="#/contact" class="ul">ask us directly</a> — we will answer the specific
+        question rather than the general one.</p>
+      </div>
+
+      ${ind?`<section class="row rv" style="margin-top:1rem">
+        <h2 class="t-3">Related work</h2>
+        <div class="body">
+          <p style="font-size:.9375rem">${esc(ind.description)}</p>
+          <a class="qlink" style="margin-top:1.5rem" href="#/industries/${ind.slug}">Our ${esc(ind.name.toLowerCase())} work<span class="bar"></span></a>
+        </div>
+      </section>`:''}
+
+      <section class="rv" style="padding-block:3rem;border-top:1px solid var(--line)">
+        <h2 class="t-3">More notes</h2>
+        <ul class="grid c3 rv-s">${more.map(x=>`
+          <li class="cell spot"><a class="article" href="#/insights/${x.slug}">
+            <span class="tag">${esc(x.category)}</span>
+            <h2>${esc(x.title)}</h2>
+            <p class="by">${esc(x.author)}</p>
+          </a></li>`).join('')}</ul>
+      </section>
+    </div>
+    ${ctaBlock()}`
+  };
+};
 
 VIEWS.contact = () => {
   const countries = ['Vietnam','Singapore','Malaysia','Indonesia','Thailand','Philippines','United Kingdom','United States','Nigeria','Ghana','Other'];
